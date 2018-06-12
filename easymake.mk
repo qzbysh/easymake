@@ -109,7 +109,7 @@ $(BUILD_ROOT)/%.o: %.$(CXXEXT)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(GEN_DEP_FLAG) -c -o $@  $<
 	@if [ $$(nm -g --format="posix" $@ | grep -c "^main T") -eq 1 ]; then 		\
 		echo "$(patsubst $(BUILD_ROOT)/%.o,%.$(CXXEXT),$@)" >> $(em_f_entries);	\
-		sort -u $(em_f_entries) -o $(em_f_entries); 							\
+		sort -u $(em_f_entries) -o $(em_f_entries); 				\
 	fi;
 
 $(BUILD_ROOT)/%.o: %.$(CEXT)
@@ -117,8 +117,8 @@ $(BUILD_ROOT)/%.o: %.$(CEXT)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(GEN_DEP_FLAG)  -c -o $@ $<
 	@if [ $$(nm -g --format="posix" $@ | grep -c "^main T") -eq 1 ]; then		\
 		echo "$(patsubst $(BUILD_ROOT)/%.o,%.$(CEXT),$@)" >> $(em_f_entries);	\
-		sort -u $(em_f_entries) -o $(em_f_entries); 							\
-		fi;
+		sort -u $(em_f_entries) -o $(em_f_entries); 				\
+	fi;
 
 # include all generated dependency files
 ifneq ($(strip $(em_all_objects)),)
@@ -136,10 +136,10 @@ $(em_all_objects): $(filter-out $(BUILD_ROOT)/%,$(MAKEFILE_LIST))
 
 $(BUILD_ROOT)/em_targets.mk: $(em_all_objects)
 	@rm -f $@
-	@$(foreach f,$(em_entry_list),										\
-		echo 'all: $(call Em_src2target,$f)' >> $@;						\
-		echo '$(call Em_src2target,$f): $(call Em_objects,$f)' >> $@;	\
-		echo '	$(em_linker) $$^ $(LDFLAGS) -o $$@ $(LOADLIBES) $(LDLIBS)'	>> $@;	\
+	@$(foreach f,$(em_entry_list),							       \
+		echo 'all: $(call Em_src2target,$f)'					>> $@; \
+		echo '$(call Em_src2target,$f): $(call Em_objects,$f)'			>> $@; \
+		echo '	$(em_linker) $$^ $(LDFLAGS) -o $$@ $(LOADLIBES) $(LDLIBS)'	>> $@; \
 	)
 
 # This recipe to handle rule "all: foo.so" or command "make foo.so"
@@ -152,10 +152,10 @@ $(BUILD_ROOT)/lib%.a lib%.a: $(call  Em_objects,NONE)
 	$(AR) $(ARFLAGS) $@ $(call  Em_objects,NONE)
 
 all $(sort $(call Em_src2target,$(CSRC) $(CXXSRC))): $(em_all_objects) $(BUILD_ROOT)/em_targets.mk
-	@$(if $(strip $(em_entry_list)),												\
+	@$(if $(strip $(em_entry_list)),								\
 		$(MAKE) --no-print-directory -f  $(BUILD_ROOT)/em_targets.mk 				\
-		$(filter-out  %.so %.a %.o %.d,$(filter $(BUILD_ROOT)/%,$(MAKECMDGOALS)))	\
-		)
+		$(filter-out  %.so %.a %.o %.d,$(filter $(BUILD_ROOT)/%,$(MAKECMDGOALS)))		\
+	)
 
 
 # "check" is the standard target from standard makefile conventions
@@ -163,12 +163,12 @@ check: test
 test: all
 	@echo "--- running tests ..."
 	@set -e; $(foreach f,$(em_entry_list),	$(if $(call IS_TEST,$f),	\
-		$(call Em_src2target,$f);										\
+		$(call Em_src2target,$f);					\
 	,))
 	@echo "--- test complete."
 
 clean: em_clean
 .PHONY: em_clean test check
 em_clean:
-	if [ -d $(BUILD_ROOT) ]; then find $(BUILD_ROOT) '(' -name "*.o" -o -name "*.d" -o -name "*.a" -o -name "*.so" -o -name "em_*" ')' -exec rm -f '{}' ';' ; fi
+	@if [ -d $(BUILD_ROOT) ]; then find $(BUILD_ROOT) '(' -name "*.o" -o -name "*.d" -o -name "*.a" -o -name "*.so" -o -name "em_*" ')' -exec rm -f '{}' ';' ; fi
 
