@@ -135,12 +135,8 @@ Em_src2target = $(foreach src,$1,$(BUILD_ROOT)/$(notdir $(basename $(src))))
 $(em_all_objects): $(filter-out $(BUILD_ROOT)/%,$(MAKEFILE_LIST))
 
 $(BUILD_ROOT)/em_targets.mk:
-	@echo	'AddLDLIBS = $(filter $(BUILD_ROOT)/%,$(LDLIBS))'	>  $@
-	@echo	'all:'							>> $@
-	@echo	'	@echo -n'					>> $@
-	@echo	'$$(AddLDLIBS):'					>> $@
 	@$(foreach f,$(em_entry_list),										      \
-		echo	'all: $(call Em_src2target,$f)'								>> $@;\
+		echo	'all: $(call Em_src2target,$f)'								>  $@;\
 		echo -n '$(call Em_src2target,$f): '								>> $@;\
 		echo	'$(call Em_objects,$f) $(filter $(BUILD_ROOT)/%,$(LDLIBS))'				>> $@;\
 		echo	'	$(em_linker) $$^ $(LDFLAGS) -o $$@ $(filter-out $(BUILD_ROOT)/%,$(LDLIBS))'	>> $@;\
@@ -172,7 +168,7 @@ test: all
 	@echo "--- test complete."
 
 clean: em_clean
-.PHONY: all em_clean test check $(BUILD_ROOT)/em_targets.mk
+.PHONY: em_clean test check
 em_clean:
 	@if [ -d $(BUILD_ROOT) ]; then find $(BUILD_ROOT) '(' -name "*.o" -o -name "*.d" -o -name "*.a" -o -name "*.so" -o -name "em_*" ')' -exec rm -f '{}' ';' ; fi
 
